@@ -89,10 +89,9 @@ impl DiscordClient {
 
         if !response.status().is_success() {
             let status = response.status().as_u16();
-            let body = response.text().await.unwrap_or_default();
             return Err(McpError::internal_error(
                 "Discord API error",
-                Some(serde_json::json!({ "status": status, "body": body })),
+                Some(serde_json::json!({ "status": status })),
             ));
         }
 
