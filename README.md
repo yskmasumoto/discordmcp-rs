@@ -12,7 +12,7 @@ channel_id = "YOUR_CHANNEL_ID"
 base_url = "https://discord.com/api/v10"
 
 [mcp]
-# gemini-cli の JSON Schema 互換性を検証したい場合は true
+# JSON Schema の $schema フィールドを削除する場合は true
 disable_schema_url = false
 ```
 
