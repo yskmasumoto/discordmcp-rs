@@ -1,12 +1,8 @@
 use rmcp::{
-    ErrorData as McpError,
-    ServerHandler,
-    ServiceExt,
+    ErrorData as McpError, ServerHandler, ServiceExt,
     handler::server::{tool::ToolRouter, wrapper::Parameters},
     model::{CallToolResult, Content, ServerCapabilities, ServerInfo},
-    tool,
-    tool_handler,
-    tool_router,
+    tool, tool_handler, tool_router,
     transport::stdio,
 };
 use serde::Deserialize;
@@ -72,10 +68,7 @@ impl DiscordClient {
             ));
         }
 
-        let url = format!(
-            "{}/channels/{}/messages",
-            self.base_url, self.channel_id
-        );
+        let url = format!("{}/channels/{}/messages", self.base_url, self.channel_id);
         let payload = SendMessagePayload {
             content: content.to_string(),
         };
@@ -91,10 +84,7 @@ impl DiscordClient {
             .send()
             .await
             .map_err(|e| {
-                McpError::internal_error(
-                    format!("Discord API request failed: {e}"),
-                    None,
-                )
+                McpError::internal_error(format!("Discord API request failed: {e}"), None)
             })?;
 
         if !response.status().is_success() {
@@ -146,7 +136,10 @@ impl DiscordMcp {
         }
     }
 
-    #[tool(name = "send_message", description = "Send a message to the configured Discord channel")]
+    #[tool(
+        name = "send_message",
+        description = "Send a message to the configured Discord channel"
+    )]
     async fn send_message(
         &self,
         params: Parameters<SendMessageRequest>,
