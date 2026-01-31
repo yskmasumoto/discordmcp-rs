@@ -24,3 +24,9 @@ target
 # Added by cargo
 
 /target
+
+# Local configuration
+config.toml
+
+# add vscode settings
+.vscode/
