@@ -10,10 +10,13 @@ use rmcp::{
     transport::stdio,
 };
 use serde::Deserialize;
+use serde_json::Value;
+use std::sync::Arc;
 
 #[derive(Debug, Deserialize)]
 struct Config {
     discord: DiscordConfig,
+    mcp: Option<McpConfig>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -23,11 +26,23 @@ struct DiscordConfig {
     base_url: String,
 }
 
+#[derive(Debug, Deserialize)]
+struct McpConfig {
+    disable_schema_url: Option<bool>,
+}
+
 impl Config {
     fn load(path: &str) -> Result<Self, Box<dyn std::error::Error>> {
         let raw = std::fs::read_to_string(path)?;
         let config = toml::from_str(&raw)?;
         Ok(config)
+    }
+
+    fn disable_schema_url(&self) -> bool {
+        self.mcp
+            .as_ref()
+            .and_then(|mcp| mcp.disable_schema_url)
+            .unwrap_or(false)
     }
 }
 
@@ -111,9 +126,20 @@ struct DiscordMcp {
 #[tool_router]
 impl DiscordMcp {
     fn new(config: Config) -> Self {
+        let disable_schema_url = config.disable_schema_url();
+        let mut tool_router = Self::tool_router();
+        if disable_schema_url {
+            for route in tool_router.map.values_mut() {
+                route.attr.input_schema = Arc::new(strip_schema_url(&route.attr.input_schema));
+                if let Some(output_schema) = &route.attr.output_schema {
+                    route.attr.output_schema = Some(Arc::new(strip_schema_url(output_schema)));
+                }
+            }
+        }
+
         Self {
             discord: DiscordClient::new(&config.discord),
-            tool_router: Self::tool_router(),
+            tool_router,
         }
     }
 
@@ -138,6 +164,15 @@ impl ServerHandler for DiscordMcp {
             ..Default::default()
         }
     }
+}
+
+fn strip_schema_url(schema: &rmcp::model::JsonObject) -> rmcp::model::JsonObject {
+    let mut schema = schema.clone();
+    schema.remove("$schema");
+    if let Some(Value::Object(metadata)) = schema.get_mut("metadata") {
+        metadata.remove("$schema");
+    }
+    schema
 }
 
 #[tokio::main]

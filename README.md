@@ -10,6 +10,10 @@ discord mcp server
 bot_token = "YOUR_BOT_TOKEN"
 channel_id = "YOUR_CHANNEL_ID"
 base_url = "https://discord.com/api/v10"
+
+[mcp]
+# gemini-cli の JSON Schema 互換性を検証したい場合は true
+disable_schema_url = false
 ```
 
 ## 起動
@@ -17,6 +21,27 @@ base_url = "https://discord.com/api/v10"
 ```bash
 cargo run
 ```
+
+## mcp.json 例
+
+以下は `.vscode/mcp.json` の例です。
+
+```json
+{
+	"servers": {
+		"discordmcp": {
+			"type": "stdio",
+			"command": "cargo",
+			"args": ["run", "--quiet"],
+			"env": {
+				"RUST_LOG": "info"
+			}
+		}
+	}
+}
+```
+
+`config.toml` はプロジェクト直下に配置してください。
 
 ## MCPツール
 
