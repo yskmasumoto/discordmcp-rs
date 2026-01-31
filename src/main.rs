@@ -66,7 +66,10 @@ impl DiscordClient {
 
     async fn send_message(&self, content: &str) -> Result<(), McpError> {
         if content.trim().is_empty() {
-            return Err(McpError::invalid_params("content is empty", None));
+            return Err(McpError::invalid_params(
+                "content is empty or contains only whitespace",
+                None,
+            ));
         }
 
         let url = format!(
